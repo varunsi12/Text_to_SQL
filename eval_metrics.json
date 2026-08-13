@@ -1,0 +1,142 @@
+{
+  "model_id": "accounts/fireworks/models/deepseek-v4-flash",
+  "total_questions": 10,
+  "executed_ok": 10,
+  "execution_success_pct": 100.0,
+  "correct_results": 7,
+  "gold_questions": 10,
+  "accuracy_pct": 70.0,
+  "p50_latency_s": 2.391,
+  "p95_latency_s": 4.38,
+  "total_retries_used": 0,
+  "per_question": [
+    {
+      "id": "q_001",
+      "question": "What are the top 5 best-selling genres by total sales?",
+      "sql": "SELECT g.Name, SUM(il.UnitPrice * il.Quantity) AS TotalSales FROM Genre g JOIN Track t ON g.GenreId = t.GenreId JOIN InvoiceLine il ON t.TrackId = il.TrackId GROUP BY g.Name ORDER BY TotalSales DESC LIMIT 5;",
+      "executed": true,
+      "matches_gold": true,
+      "error": null,
+      "retries": 0,
+      "latency_s": 4.517,
+      "row_count": 5
+    },
+    {
+      "id": "q_002",
+      "question": "List all albums by the artist 'AC/DC'.",
+      "sql": "SELECT Album.* FROM Album JOIN Artist ON Album.ArtistId = Artist.ArtistId WHERE Artist.Name = 'AC/DC';",
+      "executed": true,
+      "matches_gold": false,
+      "error": null,
+      "retries": 0,
+      "latency_s": 3.479,
+      "row_count": 2,
+      "model_answer": "AlbumId: 1, Title: For Those About To Rock We Salute You, ArtistId: 1; AlbumId: 4, Title: Let There Be Rock, ArtistId: 1",
+      "expected_answer": "Title: For Those About To Rock We Salute You; Title: Let There Be Rock",
+      "diff": [
+        "Missing rows (expected, not returned): ('For Those About To Rock We Salute You',); ('Let There Be Rock',)",
+        "Wrong/extra rows returned: ('1', '1', 'For Those About To Rock We Salute You'); ('1', '4', 'Let There Be Rock')"
+      ]
+    },
+    {
+      "id": "q_003",
+      "question": "What are the names and email addresses of customers from Brazil?",
+      "sql": "SELECT FirstName, LastName, Email FROM Customer WHERE Country = 'Brazil';",
+      "executed": true,
+      "matches_gold": true,
+      "error": null,
+      "retries": 0,
+      "latency_s": 1.07,
+      "row_count": 5
+    },
+    {
+      "id": "q_004",
+      "question": "What is the most popular media type based on number of tracks?",
+      "sql": "SELECT mt.Name, COUNT(t.TrackId) AS TrackCount FROM MediaType mt JOIN Track t ON mt.MediaTypeId = t.MediaTypeId GROUP BY mt.MediaTypeId ORDER BY TrackCount DESC LIMIT 1;",
+      "executed": true,
+      "matches_gold": true,
+      "error": null,
+      "retries": 0,
+      "latency_s": 1.616,
+      "row_count": 1
+    },
+    {
+      "id": "q_005",
+      "question": "Which employee has the most customers assigned to them?",
+      "sql": "SELECT e.EmployeeId, e.FirstName, e.LastName, COUNT(c.CustomerId) AS CustomerCount FROM Employee e JOIN Customer c ON e.EmployeeId = c.SupportRepId GROUP BY e.EmployeeId ORDER BY CustomerCount DESC LIMIT 1;",
+      "executed": true,
+      "matches_gold": false,
+      "error": null,
+      "retries": 0,
+      "latency_s": 3.341,
+      "row_count": 1,
+      "model_answer": "EmployeeId: 3, FirstName: Jane, LastName: Peacock, CustomerCount: 21",
+      "expected_answer": "EmployeeName: Jane Peacock, CustomerCount: 21",
+      "diff": [
+        "Missing rows (expected, not returned): ('21', 'Jane Peacock')",
+        "Wrong/extra rows returned: ('21', '3', 'Jane', 'Peacock')"
+      ]
+    },
+    {
+      "id": "q_006",
+      "question": "How many tracks are there in each playlist?",
+      "sql": "SELECT p.Name AS PlaylistName, COUNT(pt.TrackId) AS TrackCount FROM Playlist p LEFT JOIN PlaylistTrack pt ON p.PlaylistId = pt.PlaylistId GROUP BY p.PlaylistId, p.Name ORDER BY p.Name;",
+      "executed": true,
+      "matches_gold": true,
+      "error": null,
+      "retries": 0,
+      "latency_s": 1.704,
+      "row_count": 18
+    },
+    {
+      "id": "q_007",
+      "question": "What is the total revenue generated in the year 2021?",
+      "sql": "SELECT SUM(Total) AS total_revenue FROM Invoice WHERE strftime('%Y', InvoiceDate) = '2021';",
+      "executed": true,
+      "matches_gold": true,
+      "error": null,
+      "retries": 0,
+      "latency_s": 2.497,
+      "row_count": 1
+    },
+    {
+      "id": "q_008",
+      "question": "What is the average invoice total for each billing country, ordered from highest to lowest?",
+      "sql": "SELECT BillingCountry, AVG(Total) AS AverageTotal FROM Invoice GROUP BY BillingCountry ORDER BY AverageTotal DESC",
+      "executed": true,
+      "matches_gold": true,
+      "error": null,
+      "retries": 0,
+      "latency_s": 1.032,
+      "row_count": 24
+    },
+    {
+      "id": "q_009",
+      "question": "For each customer, what is their total spending and how does it rank compared to other customers? Show the top 5 customers by spending.",
+      "sql": "SELECT CustomerId, FirstName, LastName, TotalSpending, Rank FROM (SELECT c.CustomerId, c.FirstName, c.LastName, SUM(i.Total) AS TotalSpending, RANK() OVER (ORDER BY SUM(i.Total) DESC) AS Rank FROM Customer c JOIN Invoice i ON c.CustomerId = i.CustomerId GROUP BY c.CustomerId) ranked WHERE Rank <= 5 ORDER BY Rank;",
+      "executed": true,
+      "matches_gold": false,
+      "error": null,
+      "retries": 0,
+      "latency_s": 4.212,
+      "row_count": 5,
+      "model_answer": "CustomerId: 6, FirstName: Helena, LastName: Holý, TotalSpending: 49.62, Rank: 1; CustomerId: 26, FirstName: Richard, LastName: Cunningham, TotalSpending: 47.62, Rank: 2; CustomerId: 57, FirstName: Luis, LastName: Rojas, TotalSpending: 46.62, Rank: 3; CustomerId: 45, FirstName: Ladislav, LastName: Kovács, TotalSpending: 45.62, Rank: 4; CustomerId: 46, FirstName: Hugh, LastName: O'Reilly, TotalSpending: 45.62, Rank: 4",
+      "expected_answer": "CustomerName: Helena Holý, TotalSpent: 49.62, Rank: 1; CustomerName: Richard Cunningham, TotalSpent: 47.62, Rank: 2; CustomerName: Luis Rojas, TotalSpent: 46.62, Rank: 3; CustomerName: Ladislav Kovács, TotalSpent: 45.62, Rank: 4; CustomerName: Hugh O'Reilly, TotalSpent: 45.62, Rank: 4",
+      "diff": [
+        "Missing rows (expected, not returned): ('1', '49.62', 'Helena Holý'); ('2', '47.62', 'Richard Cunningham'); ('3', '46.62', 'Luis Rojas'); ('4', '45.62', 'Ladislav Kovács'); ('4', '45.62', \"Hugh O'Reilly\")",
+        "Wrong/extra rows returned: ('1', '49.62', '6', 'Helena', 'Holý'); ('2', '26', '47.62', 'Cunningham', 'Richard'); ('3', '46.62', '57', 'Luis', 'Rojas'); ('4', '45', '45.62', 'Kovács', 'Ladislav'); ('4', '45.62', '46', 'Hugh', \"O'Reilly\")"
+      ]
+    },
+    {
+      "id": "q_010",
+      "question": "Which artists have tracks in more than 3 different genres? List the artist name and the number of distinct genres.",
+      "sql": "SELECT a.Name, COUNT(DISTINCT t.GenreId) AS GenreCount FROM Artist a JOIN Album al ON a.ArtistId = al.ArtistId JOIN Track t ON al.AlbumId = t.AlbumId GROUP BY a.ArtistId, a.Name HAVING COUNT(DISTINCT t.GenreId) > 3;",
+      "executed": true,
+      "matches_gold": true,
+      "error": null,
+      "retries": 0,
+      "latency_s": 2.285,
+      "row_count": 1
+    }
+  ]
+}

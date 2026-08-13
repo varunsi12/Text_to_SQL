@@ -1,0 +1,42 @@
+{
+  "q_001": {
+    "sql": "SELECT g.Name, SUM(il.UnitPrice * il.Quantity) AS TotalSales FROM Genre g JOIN Track t ON g.GenreId = t.GenreId JOIN InvoiceLine il ON t.TrackId = il.TrackId GROUP BY g.Name ORDER BY TotalSales DESC LIMIT 5;",
+    "answer": "Name: Rock, TotalSales: 826.65; Name: Latin, TotalSales: 382.14; Name: Metal, TotalSales: 261.36; Name: Alternative & Punk, TotalSales: 241.56; Name: TV Shows, TotalSales: 93.53"
+  },
+  "q_002": {
+    "sql": "SELECT Album.* FROM Album JOIN Artist ON Album.ArtistId = Artist.ArtistId WHERE Artist.Name = 'AC/DC';",
+    "answer": "AlbumId: 1, Title: For Those About To Rock We Salute You, ArtistId: 1; AlbumId: 4, Title: Let There Be Rock, ArtistId: 1"
+  },
+  "q_003": {
+    "sql": "SELECT FirstName, LastName, Email FROM Customer WHERE Country = 'Brazil';",
+    "answer": "FirstName: Luís, LastName: Gonçalves, Email: luisg@embraer.com.br; FirstName: Eduardo, LastName: Martins, Email: eduardo@woodstock.com.br; FirstName: Alexandre, LastName: Rocha, Email: alero@uol.com.br; FirstName: Roberto, LastName: Almeida, Email: roberto.almeida@riotur.gov.br; FirstName: Fernanda, LastName: Ramos, Email: fernadaramos4@uol.com.br"
+  },
+  "q_004": {
+    "sql": "SELECT mt.Name, COUNT(t.TrackId) AS TrackCount FROM MediaType mt JOIN Track t ON mt.MediaTypeId = t.MediaTypeId GROUP BY mt.MediaTypeId ORDER BY TrackCount DESC LIMIT 1;",
+    "answer": "Name: MPEG audio file, TrackCount: 3034"
+  },
+  "q_005": {
+    "sql": "SELECT e.EmployeeId, e.FirstName, e.LastName, COUNT(c.CustomerId) AS CustomerCount FROM Employee e JOIN Customer c ON e.EmployeeId = c.SupportRepId GROUP BY e.EmployeeId ORDER BY CustomerCount DESC LIMIT 1;",
+    "answer": "EmployeeId: 3, FirstName: Jane, LastName: Peacock, CustomerCount: 21"
+  },
+  "q_006": {
+    "sql": "SELECT p.Name AS PlaylistName, COUNT(pt.TrackId) AS TrackCount FROM Playlist p LEFT JOIN PlaylistTrack pt ON p.PlaylistId = pt.PlaylistId GROUP BY p.PlaylistId, p.Name ORDER BY p.Name;",
+    "answer": "PlaylistName: 90’s Music, TrackCount: 1477; PlaylistName: Audiobooks, TrackCount: 0; PlaylistName: Audiobooks, TrackCount: 0; PlaylistName: Brazilian Music, TrackCount: 39; PlaylistName: Classical, TrackCount: 75; PlaylistName: Classical 101 - Deep Cuts, TrackCount: 25; PlaylistName: Classical 101 - Next Steps, TrackCount: 25; PlaylistName: Classical 101 - The Basics, TrackCount: 25; PlaylistName: Grunge, TrackCount: 15; PlaylistName: Heavy Metal Classic, TrackCount: 26; ... (8 more rows)"
+  },
+  "q_007": {
+    "sql": "SELECT SUM(Total) AS total_revenue FROM Invoice WHERE strftime('%Y', InvoiceDate) = '2021';",
+    "answer": "total_revenue: 449.46"
+  },
+  "q_008": {
+    "sql": "SELECT BillingCountry, AVG(Total) AS AverageTotal FROM Invoice GROUP BY BillingCountry ORDER BY AverageTotal DESC",
+    "answer": "BillingCountry: Chile, AverageTotal: 6.659999999999999; BillingCountry: Ireland, AverageTotal: 6.517142857142857; BillingCountry: Hungary, AverageTotal: 6.517142857142857; BillingCountry: Czech Republic, AverageTotal: 6.445714285714286; BillingCountry: Austria, AverageTotal: 6.088571428571428; BillingCountry: Finland, AverageTotal: 5.945714285714286; BillingCountry: Netherlands, AverageTotal: 5.8028571428571425; BillingCountry: India, AverageTotal: 5.78923076923077; BillingCountry: USA, AverageTotal: 5.747912087912088; BillingCountry: Norway, AverageTotal: 5.659999999999999; ... (14 more rows)"
+  },
+  "q_009": {
+    "sql": "SELECT CustomerId, FirstName, LastName, TotalSpending, Rank FROM (SELECT c.CustomerId, c.FirstName, c.LastName, SUM(i.Total) AS TotalSpending, RANK() OVER (ORDER BY SUM(i.Total) DESC) AS Rank FROM Customer c JOIN Invoice i ON c.CustomerId = i.CustomerId GROUP BY c.CustomerId) ranked WHERE Rank <= 5 ORDER BY Rank;",
+    "answer": "CustomerId: 6, FirstName: Helena, LastName: Holý, TotalSpending: 49.62, Rank: 1; CustomerId: 26, FirstName: Richard, LastName: Cunningham, TotalSpending: 47.62, Rank: 2; CustomerId: 57, FirstName: Luis, LastName: Rojas, TotalSpending: 46.62, Rank: 3; CustomerId: 45, FirstName: Ladislav, LastName: Kovács, TotalSpending: 45.62, Rank: 4; CustomerId: 46, FirstName: Hugh, LastName: O'Reilly, TotalSpending: 45.62, Rank: 4"
+  },
+  "q_010": {
+    "sql": "SELECT a.Name, COUNT(DISTINCT t.GenreId) AS GenreCount FROM Artist a JOIN Album al ON a.ArtistId = al.ArtistId JOIN Track t ON al.AlbumId = t.AlbumId GROUP BY a.ArtistId, a.Name HAVING COUNT(DISTINCT t.GenreId) > 3;",
+    "answer": "Name: Iron Maiden, GenreCount: 4"
+  }
+}

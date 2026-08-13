@@ -1,0 +1,32 @@
+Subject: Re: Help Needed — Agentic BI CLI: Text-to-SQL PoC Results & Recommendations
+
+Hi Raul,
+
+Thanks for the detailed write-up — the pain points you described (hallucinated schema, invalid SQL, latency, and unit economics) are exactly what we designed this proof of concept around. Here's where we landed.
+
+WHAT WE BUILT
+An interactive CLI agent (runnable via `uv run cli`) that converts natural-language questions to SQLite, executes them, and returns the SQL plus results. Compared to your baseline prompt, it adds four things: the full database schema with foreign-key relationships is injected into the prompt (this eliminated hallucinated tables/columns entirely in our testing); the model is forced into structured JSON output for reliable parsing; a safety validator makes the agent read-only by construction; and when SQL fails, the actual database error is fed back to the model for a bounded repair loop (up to 2 retries). The CLI keeps recent conversation context, so follow-up questions like "now only for Brazil" work naturally.
+
+HOW WE VALIDATED IT
+We built an evaluation harness that runs all 10 dev questions and compares actual query results against the gold expected results (tolerant of aliases and row order, strict about the data). With deepseek-v4-flash, an open-source model on Fireworks:
+
+- Execution success: 100% (10/10) — every query ran, no invalid SQL, no hallucinated schema
+- Result accuracy: 70% (7/10)
+- P50 latency: 2.39s end-to-end — under your 3s target (vs ~7s on your current prototype)
+- P95 latency: 4.38s; zero retries needed across the run
+
+WHAT WORKS AND WHAT DOESN'T
+The three misses are all the same failure class: the SQL executes and returns the correct data, but in the wrong shape — e.g. `SELECT *` pulling extra ID columns, or a person's name returned as two columns instead of one. No wrong values, no broken queries. This is a prompting problem, not a model-capability problem, which makes it the cheapest thing to fix.
+
+NEXT STEPS
+1. Prompt iteration targeting the shape failures (ban `SELECT *`, return only requested columns) — we expect this to recover most of the gap toward 100% on the dev set.
+2. Model bake-off on Fireworks comparing accuracy/latency/cost per query at your ~30k queries/day scale, so the unit economics are grounded in measurements rather than list prices.
+3. Expanded test set and multi-run evaluation — 10 questions is enough to iterate, but certifying "good enough to ship" needs a larger suite and variance measurement.
+4. Schema retrieval for large customer databases, where injecting the full schema won't fit.
+
+One note on process: I used AI coding tools (Cursor with Gemini and Claude models) to generate the initial CLI/agent code and the evaluation harness; architecture decisions, review, testing, and validation of all results were done by hand. Details are in the README.
+
+Happy to walk through the code and the evaluation together, and to discuss what productionizing this would look like.
+
+Best,
+Varun Singh
