@@ -1,4 +1,4 @@
-# Text-to-SQL CLI Agent (Fireworks AI Take-Home)
+# Text-to-SQL CLI Agent
 
 An interactive terminal agent that converts natural-language questions into SQLite queries, executes them against the Chinook database, and supports follow-up questions — built on open-source models served by Fireworks AI.
 
